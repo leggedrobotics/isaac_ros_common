@@ -1,49 +1,49 @@
 #!/bin/bash
 #
-# Copyright (c) 2021-2022, NVIDIA CORPORATION.  All rights reserved.
-#
-# NVIDIA CORPORATION and its licensors retain all intellectual property
-# and proprietary rights in and to this software, related documentation
-# and any modifications thereto.  Any use, reproduction, disclosure or
-# distribution of this software and related documentation without an express
-# license agreement from NVIDIA CORPORATION is strictly prohibited.
+# Based on NVIDIA CORPORATION's run_dev.sh script.
 
 ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 source $ROOT/utils/print_color.sh
 
 function usage() {
-    print_info "Usage: run_dev.sh" {isaac_ros_dev directory path OPTIONAL}
-    print_info "Copyright (c) 2021-2022, NVIDIA CORPORATION."
+    print_info "Usage: run_recording.sh [OPTIONS]"
+    print_info "Options:"
+    print_info "  -c, --command    Specify the command to pass to Docker run. Available commands:"
+    print_info "      start_recording <run_id> [topic list] - Start ROS2 bag recording with specified run ID and space-separated list of topics."
+    print_info "      hdr_start - Start the HDR camera using predefined settings."
+    print_info "      ros1_bridge_start - Start the ROS1 bridge for interfacing with ROS2."
+    print_info "      Any other command will attempt to execute directly in the container."
+    print_info ""
+    print_info "Examples:"
+    print_info "  ./run_recording.sh -c \"hdr_start\""
+    print_info "  ./run_recording.sh -c \"start_recording 12345 /gt_box/topic_1 /gt_box/topic_2\""
+    print_info ""
+    print_info "If no command is provided, the script will open an interactive login shell."
 }
 
-# Read and parse config file if exists
-#
-# CONFIG_IMAGE_KEY (string, can be empty)
+ISAAC_ROS_DEV_DIR="/data/workspaces/isaac_ros-dev"
+COMMAND=""
+args=()  # Initialize array to capture non-flag arguments
 
-if [[ -f "${ROOT}/.isaac_ros_common-config" ]]; then
-    . "${ROOT}/.isaac_ros_common-config"
-fi
+# Process command line options.
+while [[ "$#" -gt 0 ]]; do
+    case "$1" in
+        -c|--command) COMMAND="$2"; shift ;;
+        -h|--help)
+            usage
+            exit 0
+            ;;
+        *) 
+            args+=("$1")  # Capture non-flag arguments to pass later
+            shift
+            ;;
+    esac
+    shift
+done
 
-ISAAC_ROS_DEV_DIR="$1"
-if [[ -z "$ISAAC_ROS_DEV_DIR" ]]; then
-    ISAAC_ROS_DEV_DIR_DEFAULTS=("$HOME/workspaces/isaac_ros-dev" "/workspaces/isaac_ros-dev")
-    for ISAAC_ROS_DEV_DIR in "${ISAAC_ROS_DEV_DIR_DEFAULTS[@]}"
-    do
-        if [[ -d "$ISAAC_ROS_DEV_DIR" ]]; then
-            break
-        fi
-    done
-
-    if [[ ! -d "$ISAAC_ROS_DEV_DIR" ]]; then
-        ISAAC_ROS_DEV_DIR=$(realpath "$ROOT/../")
-    fi
-    print_warning "isaac_ros_dev not specified, assuming $ISAAC_ROS_DEV_DIR"
-else
-    if [[ ! -d "$ISAAC_ROS_DEV_DIR" ]]; then
-        print_error "Specified isaac_ros_dev does not exist: $ISAAC_ROS_DEV_DIR"
-        exit 1
-    fi
-    shift 1
+if [[ ! -d "$ISAAC_ROS_DEV_DIR" ]]; then
+    print_error "Specified isaac_ros_dev directory does not exist: $ISAAC_ROS_DEV_DIR"
+    exit 1
 fi
 
 ON_EXIT=()
@@ -89,24 +89,10 @@ if [[ $? -ne 0 ]] ; then
     exit 1
 fi
 
-# Check if all LFS files are in place in the repository where this script is running from.
-# cd $ROOT
-# git rev-parse &>/dev/null
-# if [[ $? -eq 0 ]]; then
-#     LFS_FILES_STATUS=$(cd $ISAAC_ROS_DEV_DIR && git lfs ls-files | cut -d ' ' -f2)
-#     for (( i=0; i<${#LFS_FILES_STATUS}; i++ )); do
-#         f="${LFS_FILES_STATUS:$i:1}"
-#         if [[ "$f" == "-" ]]; then
-#             print_error "LFS files are missing. Please re-clone the repo after installing git-lfs."
-#             exit 1
-#        fi
-#     done
-# fi
-
 PLATFORM="$(uname -m)"
 
 BASE_NAME="isaac_ros_dev-$PLATFORM"
-CONTAINER_NAME="$BASE_NAME-container"
+CONTAINER_NAME="$BASE_NAME-container-recording"
 
 # Remove any exited containers.
 if [ "$(docker ps -a --quiet --filter status=exited --filter name=$CONTAINER_NAME)" ]; then
@@ -116,7 +102,8 @@ fi
 # Re-use existing container.
 if [ "$(docker ps -a --quiet --filter status=running --filter name=$CONTAINER_NAME)" ]; then
     print_info "Attaching to running container: $CONTAINER_NAME"
-    docker exec -i -t -u admin --workdir /workspaces/isaac_ros-dev $CONTAINER_NAME /bin/bash $@
+    # Execute the workspace entry script, passing additional arguments if provided
+    docker exec -i -t -u admin --workdir /workspaces/isaac_ros-dev $CONTAINER_NAME /usr/local/bin/scripts/workspace-attachpoint.sh $COMMAND "${args[@]}"
     exit 0
 fi
 
@@ -200,11 +187,13 @@ docker run -it --rm \
     -v /dev/*:/dev/* \
     -v /etc/localtime:/etc/localtime:ro \
     -v /data:/data \
+    -v $ISAAC_ROS_DEV_DIR/src/isaac_ros_common/docker/scripts:/usr/local/bin/scripts \
     --name "$CONTAINER_NAME" \
     --runtime nvidia \
     --user="admin" \
     --entrypoint /usr/local/bin/scripts/workspace-entrypoint.sh \
     --workdir /workspaces/isaac_ros-dev \
     $@ \
-    isaac_ros_dev-aarch64:kappi_offline \
-    /bin/bash
+    isaac_ros_dev-aarch64:recording \
+    "$COMMAND" \
+    "${args[@]}"
