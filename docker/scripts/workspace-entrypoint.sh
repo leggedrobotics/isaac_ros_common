@@ -38,4 +38,4 @@ source ~/.bashrc
 source /usr/local/bin/scripts/entrypoint-commands.sh "$@"
 
 #  
-# cd /workspaces/isaac_ros-dev; colcon build --symlink-install --packages-select rosbag2_composable_recorder; source install/setup.bash;
+# cd /workspaces/ros2_ws; colcon build --symlink-install --packages-select rosbag2_composable_recorder; source install/setup.bash;
