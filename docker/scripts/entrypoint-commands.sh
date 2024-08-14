@@ -35,18 +35,74 @@ handle_command() {
             debug "Starting ROS2 bag recording with topics: $topics"
             source /opt/ros/humble/setup.bash
             source /workspaces/isaac_ros-dev/install/setup.bash
-            ros2 service call /gt_box/recorder_hdr_left/start_recording  rosbag2_composable_recorder/srv/StartRecording "{timestamp: '$run_id'}"
-            ros2 service call /gt_box/recorder_hdr_front/start_recording  rosbag2_composable_recorder/srv/StartRecording "{timestamp: '$run_id'}"
-            ros2 service call /gt_box/recorder_hdr_right/start_recording  rosbag2_composable_recorder/srv/StartRecording "{timestamp: '$run_id'}"
+            
+            service_name="/gt_box/recorder_hdr_left/start_recording"
+            service_type="rosbag2_composable_recorder/srv/StartRecording"
+            
+            if ros2 service list | grep -q "$service_name"; then
+                echo "Service $service_name is available. Proceeding with the call."
+                ros2 service call "$service_name" "$service_type" "{timestamp: '$run_id'}"
+            else
+                echo "Service $service_name is not available. Skipping the call."
+            fi
+
+
+            service_name="/gt_box/recorder_hdr_right/start_recording"
+            service_type="rosbag2_composable_recorder/srv/StartRecording"
+            
+            if ros2 service list | grep -q "$service_name"; then
+                echo "Service $service_name is available. Proceeding with the call."
+                ros2 service call "$service_name" "$service_type" "{timestamp: '$run_id'}"
+            else
+                echo "Service $service_name is not available. Skipping the call."
+            fi
+
+            service_name="/gt_box/recorder_hdr_front/start_recording"
+            service_type="rosbag2_composable_recorder/srv/StartRecording"
+            
+            if ros2 service list | grep -q "$service_name"; then
+                echo "Service $service_name is available. Proceeding with the call."
+                ros2 service call "$service_name" "$service_type" "{timestamp: '$run_id'}"
+            else
+                echo "Service $service_name is not available. Skipping the call."
+            fi
+
+
             # ros2 bag record -s mcap $topics -o "/data/${run_id}/hdr" --max-bag-duration 300
             ;;
         stop_recording)
             debug "Starting ROS2 bag recording with topics: $topics"
             source /opt/ros/humble/setup.bash
             source /workspaces/isaac_ros-dev/install/setup.bash
-            ros2 service call /gt_box/recorder_hdr_left/stop_recording std_srvs/srv/Trigger "{}"
-            ros2 service call /gt_box/recorder_hdr_front/stop_recording std_srvs/srv/Trigger "{}"
-            ros2 service call /gt_box/recorder_hdr_right/stop_recording std_srvs/srv/Trigger "{}"
+
+            service_name="/gt_box/recorder_hdr_left/stop_recording"
+            service_type="std_srvs/srv/Trigger"
+            
+            if ros2 service list | grep -q "$service_name"; then
+                echo "Service $service_name is available. Proceeding with the call."
+                ros2 service call "$service_name" "$service_type" "{}"
+            else
+                echo "Service $service_name is not available. Skipping the call."
+            fi
+
+
+            service_name="/gt_box/recorder_hdr_right/stop_recording"
+            
+            if ros2 service list | grep -q "$service_name"; then
+                echo "Service $service_name is available. Proceeding with the call."
+                ros2 service call "$service_name" "$service_type" "{}"
+            else
+                echo "Service $service_name is not available. Skipping the call."
+            fi
+
+            service_name="/gt_box/recorder_hdr_front/stop_recording"
+            
+            if ros2 service list | grep -q "$service_name"; then
+                echo "Service $service_name is available. Proceeding with the call."
+                ros2 service call "$service_name" "$service_type" "{}"
+            else
+                echo "Service $service_name is not available. Skipping the call."
+            fi
             ;;
         hdr_start)
             debug "Executing hdr_start alias"

@@ -22,6 +22,8 @@ function usage() {
 }
 
 ISAAC_ROS_DEV_DIR="/data/workspaces/isaac_ros-dev"
+ISAAC_ROS_DEV_DIR2="/data/workspaces/ros2_ws"
+
 COMMAND=""
 args=()  # Initialize array to capture non-flag arguments
 
@@ -184,6 +186,8 @@ docker run -it --rm \
     --network host \
     ${DOCKER_ARGS[@]} \
     -v $ISAAC_ROS_DEV_DIR:/workspaces/isaac_ros-dev \
+    -v $ISAAC_ROS_DEV_DIR2:/workspaces/ros2_ws \
+    -v /home/rsl/git:/home/rsl/git \
     -v /dev/*:/dev/* \
     -v /etc/localtime:/etc/localtime:ro \
     -v /data:/data \
