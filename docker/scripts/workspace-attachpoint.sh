@@ -14,4 +14,4 @@ source /opt/ros/${ROS_DISTRO}/setup.bash
 source ~/.bashrc
 
 # Source the standalone command handling script and pass all arguments
-source /usr/local/bin/scripts/entrypoint-commands.sh "$@"
+source /usr/local/bin/scripts/workspace-entrypoint.sh "$@"

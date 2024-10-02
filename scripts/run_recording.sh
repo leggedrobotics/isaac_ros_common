@@ -25,22 +25,17 @@ ISAAC_ROS_DEV_DIR="/data/workspaces/isaac_ros-dev"
 ISAAC_ROS_DEV_DIR2="/data/workspaces/ros2_ws"
 
 COMMAND=""
-args=()  # Initialize array to capture non-flag arguments
 
+args=()  # Initialize an array to store non-flag arguments
 # Process command line options.
+
 while [[ "$#" -gt 0 ]]; do
     case "$1" in
-        -c|--command) COMMAND="$2"; shift ;;
-        -h|--help)
-            usage
-            exit 0
-            ;;
         *) 
             args+=("$1")  # Capture non-flag arguments to pass later
-            shift
             ;;
     esac
-    shift
+    shift  # Shift to the next argument
 done
 
 if [[ ! -d "$ISAAC_ROS_DEV_DIR" ]]; then
@@ -199,5 +194,4 @@ docker run -it --rm \
     --workdir /workspaces/isaac_ros-dev \
     $@ \
     isaac_ros_dev-aarch64:recording \
-    "$COMMAND" \
     "${args[@]}"
