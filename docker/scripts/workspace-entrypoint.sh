@@ -22,12 +22,9 @@ debug "Starting script with parameters: $@"
 
 # Restart udev daemon
 sudo service udev restart
-
-
-source /opt/ros/${ROS_DISTRO}/setup.bash
 source ~/.bashrc
-source /workspaces/isaac_ros-dev/install/setup.bash
 
+echo TEST TEST TEST
 # Main function to handle commands
 handle_command() {
     if [ $# -eq 0 ]; then
@@ -35,6 +32,8 @@ handle_command() {
         /bin/bash -l  # Open a login shell
     else
         debug "Executing Python script with arguments: $@"
+
+        source /workspaces/ros2_ws/install/setup.bash
         python3 /usr/local/bin/scripts/entrypoint.py "$@"
     fi
 }

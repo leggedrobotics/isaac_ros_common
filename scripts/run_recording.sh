@@ -189,8 +189,7 @@ docker run -it --rm \
     -v /dev/*:/dev/* \
     -v /etc/localtime:/etc/localtime:ro \
     -v /data:/data \
-    -v $ISAAC_ROS_DEV_DIR/src/isaac_ros_common/docker/scripts:/usr/local/bin/scripts \
-    --name "$CONTAINER_NAME" \
+    -v /home/rsl/git/grand_tour_box/box_drivers_ros2/isaac_ros_common/docker/scripts:/usr/local/bin/scripts \
     --runtime nvidia \
     --user="admin" \
     --entrypoint /usr/local/bin/scripts/workspace-entrypoint.sh \

@@ -50,7 +50,7 @@ class Ros2RecorderClient(Node):
 
 def run_command(command):
     try:
-        subprocess.run(command, check=True, shell=True)
+        subprocess.run(command, check=True, shell=True, executable="/bin/bash")
     except subprocess.CalledProcessError as e:
         logging.error(f"Command failed: {e}")
         sys.exit(1)
