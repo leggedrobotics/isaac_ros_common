@@ -23,6 +23,8 @@ function usage() {
 
 ISAAC_ROS_DEV_DIR="/data/workspaces/isaac_ros-dev"
 ISAAC_ROS_DEV_DIR2="/data/workspaces/ros2_ws"
+ISAAC_ROS_DEV_DIR3="/data/workspaces/bridge_ws"
+
 
 COMMAND=""
 
@@ -182,6 +184,7 @@ docker run -it --rm \
     ${DOCKER_ARGS[@]} \
     -v $ISAAC_ROS_DEV_DIR:/workspaces/isaac_ros-dev \
     -v $ISAAC_ROS_DEV_DIR2:/workspaces/ros2_ws \
+    -v $ISAAC_ROS_DEV_DIR3:/workspaces/bridge_ws \
     -v /home/rsl/git:/home/rsl/git \
     -v /dev/*:/dev/* \
     -v /etc/localtime:/etc/localtime:ro \
@@ -191,7 +194,7 @@ docker run -it --rm \
     --runtime nvidia \
     --user="admin" \
     --entrypoint /usr/local/bin/scripts/workspace-entrypoint.sh \
-    --workdir /workspaces/isaac_ros-dev \
+    --workdir /workspaces/ros2_ws \
     $@ \
-    isaac_ros_dev-aarch64:recording \
+    isaac_ros_dev-aarch64:grand_tour_box \
     "${args[@]}"

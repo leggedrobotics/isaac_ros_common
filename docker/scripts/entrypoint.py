@@ -106,7 +106,7 @@ def stop_recording():
     
 def hdr_start():
     logging.info("Executing hdr_start alias")
-    run_command("ros2 launch rosbag2_composable_recorder recorder.launch.py")
+    run_command("cd /workspaces/ros2_ws; source install/setup.bash; ros2 launch rosbag2_composable_recorder recorder.launch.py")
 
 def ros1_bridge_start():
     ValueError("Not implemented")
@@ -114,7 +114,7 @@ def ros1_bridge_start():
     cmd = ""
     cmd += "source /opt/ros/noetic/setup.bash; "
     cmd += "source /opt/ros/humble/setup.bash; "
-    cmd += "source install/setup.bash; "
+    cmd += "cd /workspaces/bridge_ws; source install/setup.bash; "
     cmd += "ros2 run ros1_bridge dynamic_bridge --bridge-all-2to1-topics"
     run_command(cmd)
 
