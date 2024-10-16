@@ -21,7 +21,6 @@ function usage() {
     print_info "If no command is provided, the script will open an interactive login shell."
 }
 
-ISAAC_ROS_DEV_DIR="/data/workspaces/isaac_ros-dev"
 ISAAC_ROS_DEV_DIR2="/data/workspaces/ros2_ws"
 ISAAC_ROS_DEV_DIR3="/data/workspaces/bridge_ws"
 
@@ -40,10 +39,6 @@ while [[ "$#" -gt 0 ]]; do
     shift  # Shift to the next argument
 done
 
-if [[ ! -d "$ISAAC_ROS_DEV_DIR" ]]; then
-    print_error "Specified isaac_ros_dev directory does not exist: $ISAAC_ROS_DEV_DIR"
-    exit 1
-fi
 
 ON_EXIT=()
 function cleanup {
@@ -102,7 +97,7 @@ fi
 if [ "$(docker ps -a --quiet --filter status=running --filter name=$CONTAINER_NAME)" ]; then
     print_info "Attaching to running container: $CONTAINER_NAME"
     # Execute the workspace entry script, passing additional arguments if provided
-    docker exec -i -t -u admin --workdir /workspaces/isaac_ros-dev $CONTAINER_NAME /usr/local/bin/scripts/workspace-attachpoint.sh $COMMAND "${args[@]}"
+    docker exec -i -t -u admin --workdir /workspaces/ros2_ws $CONTAINER_NAME /usr/local/bin/scripts/workspace-attachpoint.sh $COMMAND "${args[@]}"
     exit 0
 fi
 
@@ -182,7 +177,6 @@ docker run -it --rm \
     --privileged \
     --network host \
     ${DOCKER_ARGS[@]} \
-    -v $ISAAC_ROS_DEV_DIR:/workspaces/isaac_ros-dev \
     -v $ISAAC_ROS_DEV_DIR2:/workspaces/ros2_ws \
     -v $ISAAC_ROS_DEV_DIR3:/workspaces/bridge_ws \
     -v /home/rsl/git:/home/rsl/git \
