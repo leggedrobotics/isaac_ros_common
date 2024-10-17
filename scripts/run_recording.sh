@@ -180,7 +180,7 @@ docker run -it --rm \
     -v $ISAAC_ROS_DEV_DIR2:/workspaces/ros2_ws \
     -v $ISAAC_ROS_DEV_DIR3:/workspaces/bridge_ws \
     -v /home/rsl/git:/home/rsl/git \
-    -v /dev/*:/dev/* \
+    -v /dev:/dev \
     -v /etc/localtime:/etc/localtime:ro \
     -v /data:/data \
     -v /home/rsl/git/grand_tour_box/box_drivers_ros2/isaac_ros_common/docker/scripts:/usr/local/bin/scripts \

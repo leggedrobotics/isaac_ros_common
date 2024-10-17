@@ -22,7 +22,7 @@ handle_command() {
     else
         debug "Executing Python script with arguments: $@"
 
-        source /workspaces/ros2_ws/install/setup.bash; python3 /usr/local/bin/scripts/entrypoint.py "$@"
+        source /opt/ros/humble/setup.bash; source /workspaces/ros2_ws/install/setup.bash; python3 /usr/local/bin/scripts/entrypoint.py "$@"
     fi
 }
 # Execute handle_command with all passed arguments
