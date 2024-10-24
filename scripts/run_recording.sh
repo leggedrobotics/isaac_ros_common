@@ -21,30 +21,24 @@ function usage() {
     print_info "If no command is provided, the script will open an interactive login shell."
 }
 
-ISAAC_ROS_DEV_DIR="/data/workspaces/isaac_ros-dev"
-COMMAND=""
-args=()  # Initialize array to capture non-flag arguments
+ISAAC_ROS_DEV_DIR2="/data/workspaces/ros2_ws"
+ISAAC_ROS_DEV_DIR3="/data/workspaces/bridge_ws"
 
+
+COMMAND=""
+
+args=()  # Initialize an array to store non-flag arguments
 # Process command line options.
+
 while [[ "$#" -gt 0 ]]; do
     case "$1" in
-        -c|--command) COMMAND="$2"; shift ;;
-        -h|--help)
-            usage
-            exit 0
-            ;;
         *) 
             args+=("$1")  # Capture non-flag arguments to pass later
-            shift
             ;;
     esac
-    shift
+    shift  # Shift to the next argument
 done
 
-if [[ ! -d "$ISAAC_ROS_DEV_DIR" ]]; then
-    print_error "Specified isaac_ros_dev directory does not exist: $ISAAC_ROS_DEV_DIR"
-    exit 1
-fi
 
 ON_EXIT=()
 function cleanup {
@@ -103,7 +97,7 @@ fi
 if [ "$(docker ps -a --quiet --filter status=running --filter name=$CONTAINER_NAME)" ]; then
     print_info "Attaching to running container: $CONTAINER_NAME"
     # Execute the workspace entry script, passing additional arguments if provided
-    docker exec -i -t -u admin --workdir /workspaces/isaac_ros-dev $CONTAINER_NAME /usr/local/bin/scripts/workspace-attachpoint.sh $COMMAND "${args[@]}"
+    docker exec -i -t -u admin --workdir /workspaces/ros2_ws $CONTAINER_NAME /usr/local/bin/scripts/workspace-attachpoint.sh $COMMAND "${args[@]}"
     exit 0
 fi
 
@@ -183,17 +177,17 @@ docker run -it --rm \
     --privileged \
     --network host \
     ${DOCKER_ARGS[@]} \
-    -v $ISAAC_ROS_DEV_DIR:/workspaces/isaac_ros-dev \
-    -v /dev/*:/dev/* \
+    -v $ISAAC_ROS_DEV_DIR2:/workspaces/ros2_ws \
+    -v $ISAAC_ROS_DEV_DIR3:/workspaces/bridge_ws \
+    -v /home/rsl/git:/home/rsl/git \
+    -v /dev:/dev \
     -v /etc/localtime:/etc/localtime:ro \
     -v /data:/data \
-    -v $ISAAC_ROS_DEV_DIR/src/isaac_ros_common/docker/scripts:/usr/local/bin/scripts \
-    --name "$CONTAINER_NAME" \
+    -v /home/rsl/git/grand_tour_box/box_drivers_ros2/isaac_ros_common/docker/scripts:/usr/local/bin/scripts \
     --runtime nvidia \
     --user="admin" \
     --entrypoint /usr/local/bin/scripts/workspace-entrypoint.sh \
-    --workdir /workspaces/isaac_ros-dev \
+    --workdir /workspaces/ros2_ws \
     $@ \
-    isaac_ros_dev-aarch64:recording \
-    "$COMMAND" \
+    isaac_ros_dev-aarch64:grand_tour_box \
     "${args[@]}"
