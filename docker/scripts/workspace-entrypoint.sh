@@ -18,7 +18,7 @@ source ~/.bashrc
 handle_command() {
     if [ $# -eq 0 ]; then
         debug "No command provided, opening login shell"
-        /bin/bash -l  # Open a login shell
+        /bin/bash -l -c "source /opt/ros/humble/setup.bash; source /workspaces/ros2_ws/install/setup.bash; exec /bin/bash"
     else
         debug "Executing Python script with arguments: $@"
 
