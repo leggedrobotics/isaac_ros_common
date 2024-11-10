@@ -52,9 +52,10 @@ def run_command(command):
     try:
         subprocess.run(command, check=True, shell=True, executable="/bin/bash")
     except subprocess.CalledProcessError as e:
-        logging.error(f"Command failed: {e}")
+        logging.error(f"Command output: {e.stdout}")
+        logging.error(f"Command error: {e.stderr}")
         sys.exit(1)
-
+        
 def start_recording(args):
     if len(args) < 2:
         logging.error("Error: No run_id or topics provided.")
@@ -142,8 +143,10 @@ def main():
     elif command == "ros1_bridge_start":
         ros1_bridge_start()
     else:
-        logging.error(f"Unknown command: {command}")
-        sys.exit(1)
+        print(sys.argv)
+        cmd = " ".join(sys.argv[1:])
+        print(f"Try to run command: {cmd}")
+        run_command( cmd )
 
 if __name__ == "__main__":
     main()
